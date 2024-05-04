@@ -29,7 +29,8 @@ import static org.eu.pcraft.pepperminecart.PepperMinecart.config;
 
 public class listener implements Listener {
     @EventHandler
-    void onMove(VehicleUpdateEvent event){//Unfinished!
+    void onMove(VehicleUpdateEvent event){
+        //Unfinished! Welcome PRs!
         Minecart minecart=(Minecart) event.getVehicle();
         if(minecart.getDisplayBlockData().getMaterial()==Material.REDSTONE_BLOCK){
             Block block=minecart.getWorld().getBlockAt(minecart.getLocation());
