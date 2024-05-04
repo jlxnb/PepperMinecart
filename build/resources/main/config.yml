@@ -1,6 +1,0 @@
-#PepperMinecart配置文件
-#byPepper
-#是否启用自定义交互(如 工作台矿车)
-enableCustomInteract: true
-#是否允许红石原件矿车发出红石信号?
-enableRedstoneMinecart: true
