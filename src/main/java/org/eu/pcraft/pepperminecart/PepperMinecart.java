@@ -2,9 +2,9 @@ package org.eu.pcraft.pepperminecart;
 
 import dev.jorel.commandapi.*;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.configuration.Configuration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.eu.pcraft.bStats.Metrics;
@@ -15,9 +15,12 @@ import java.util.Objects;
 
 public final class PepperMinecart extends JavaPlugin {
     public static HashMap<Material, EntityType> changeMap = new HashMap<>();
-    public static JavaPlugin instance;
-    public static Configuration yaml;
-    public static ConfigTemplate config = new ConfigTemplate();
+
+    @Getter
+    private static PepperMinecart instance;
+
+    @Getter
+    private final ConfigTemplate configTemplate = new ConfigTemplate();
 
     @Override
     public void onLoad() {
@@ -42,8 +45,6 @@ public final class PepperMinecart extends JavaPlugin {
 
         ////config////
         saveDefaultConfig();
-        yaml = this.getConfig();
-        config.loadConfig();
 
         ////Commands////
         CommandAPI.onEnable();
@@ -55,8 +56,7 @@ public final class PepperMinecart extends JavaPlugin {
                     if(Objects.equals(args.get("subCommand"), "reload")){
                         Bukkit.getLogger().info("正在重新加载……");
                         this.reloadConfig();
-                        yaml=this.getConfig();
-                        config.loadConfig();
+                        configTemplate.loadConfig();
                         Bukkit.getLogger().info("完成！");
                     }
                 })
@@ -67,4 +67,5 @@ public final class PepperMinecart extends JavaPlugin {
     public void onDisable() {
         CommandAPI.onDisable();
     }
+
 }

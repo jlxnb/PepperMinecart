@@ -5,7 +5,6 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.AnaloguePowerable;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Minecart;
@@ -14,17 +13,14 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
-import org.bukkit.event.vehicle.VehicleMoveEvent;
 import org.bukkit.event.vehicle.VehicleUpdateEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.material.Lever;
 
 import java.util.Map;
 import java.util.Objects;
 
 import static org.eu.pcraft.pepperminecart.PepperMinecart.changeMap;
-import static org.eu.pcraft.pepperminecart.PepperMinecart.config;
 
 
 public class listener implements Listener {
@@ -35,8 +31,7 @@ public class listener implements Listener {
         if(minecart.getDisplayBlockData().getMaterial()==Material.REDSTONE_BLOCK){
             Block block=minecart.getWorld().getBlockAt(minecart.getLocation());
             for(BlockFace face:BlockFace.values()){
-                if(block.getRelative(face).getBlockData() instanceof AnaloguePowerable){
-                    AnaloguePowerable x=(AnaloguePowerable) block.getRelative(face).getBlockData();
+                if(block.getRelative(face).getBlockData() instanceof AnaloguePowerable x){
                     x.setPower(15);
                     block.getRelative(face).setBlockData(x.clone());
                 }
@@ -45,11 +40,12 @@ public class listener implements Listener {
     }
 
     @EventHandler
-    void onDestory(VehicleDestroyEvent event) {
+    void onDestroy(VehicleDestroyEvent event) {
         Entity minecart = event.getVehicle();
         NBTEntity entity = new NBTEntity(minecart);
         ItemStack item = entity.getPersistentDataContainer().getItemStack("BlockInfo");
-        minecart.getWorld().dropItem(minecart.getLocation(), item);
+        if (item != null)
+            minecart.getWorld().dropItem(minecart.getLocation(), item);
     }
 
     @EventHandler
@@ -64,7 +60,7 @@ public class listener implements Listener {
                 }
 
                 if (!player.isSneaking()) {//交互部分
-                    if (config.enableCustomInteract) {//允许交互
+                    if (PepperMinecart.getInstance().getConfigTemplate().isEnableCustomInteract()) {//允许交互
                         switch (minecart.getDisplayBlockData().getMaterial()) {
                             case CRAFTING_TABLE -> player.openWorkbench(null, true);
                             case GRINDSTONE -> player.openGrindstone(null, true);
@@ -86,11 +82,10 @@ public class listener implements Listener {
                         minecart.setDisplayBlockData(Material.AIR.createBlockData());
                         return;
                     }
-                    if (Objects.equals(item.getItemMeta(), is.getItemMeta())) {//手上为车上物体 取下物体
+                    if (is != null && Objects.equals(item.getItemMeta(), is.getItemMeta())) {//手上为车上物体 取下物体
                         item.add();
                         minecart.setDisplayBlockData(Material.AIR.createBlockData());
                         event.setCancelled(true);
-                        return;
                     }
                 }//放上物体 处理部分
                 else {
@@ -114,7 +109,6 @@ public class listener implements Listener {
 //                            minecart.
 //                        }
                         event.setCancelled(true);
-                        return;
                     }
                 }
 
