@@ -1,7 +1,9 @@
 package org.eu.pcraft.pepperminecart;
 
 import dev.jorel.commandapi.*;
+import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -19,9 +21,15 @@ import java.util.*;
 
 public final class PepperMinecart extends JavaPlugin {
     public static HashMap<Material, EntityType> changeMap = new HashMap<>();
-    public static JavaPlugin instance;
+
+    @Getter
+    private static PepperMinecart instance;
+
+    @Getter
+    private final ConfigTemplate configTemplate = new ConfigTemplate();
+  
     public static Configuration yaml;
-    public static ConfigTemplate config = new ConfigTemplate();
+  
     public static Set<UUID> redstoneMinecartSet=new HashSet<>();
 
     @Override
@@ -47,22 +55,25 @@ public final class PepperMinecart extends JavaPlugin {
 
         ////config////
         saveDefaultConfig();
-        yaml = this.getConfig();
-        config.loadConfig();
+        configTemplate.loadConfig();
 
         ////Commands////
         CommandAPI.onEnable();
         new CommandAPICommand("PepperMinecart")
-                .withArguments(new GreedyStringArgument("subCommand"))
+                .withArguments(
+                        new GreedyStringArgument("subCommand")
+                                .includeSuggestions(
+                                        ArgumentSuggestions.strings("reload")
+                                )
+                )
                 .withPermission(CommandPermission.OP)
                 .withAliases("pm", "minecart")
                 .executes((sender, args) -> {
                     if(Objects.equals(args.get("subCommand"), "reload")){
-                        Bukkit.getLogger().info("正在重新加载……");
+                        sender.sendMessage("[PepperMinecart] 正在重新加载……");
                         this.reloadConfig();
-                        yaml=this.getConfig();
-                        config.loadConfig();
-                        Bukkit.getLogger().info("完成！");
+                        configTemplate.loadConfig();
+                        sender.sendMessage("[PepperMinecart] 完成！");
                     }
                 })
                 .register();
@@ -85,4 +96,5 @@ public final class PepperMinecart extends JavaPlugin {
     public void onDisable() {
         CommandAPI.onDisable();
     }
+
 }

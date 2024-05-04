@@ -1,6 +1,7 @@
 plugins {
     id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'java'
+    id "xyz.jpenilla.run-paper" version "2.3.0"
 }
 
 group = 'org.eu.pcraft'
@@ -67,5 +68,11 @@ shadowJar{
 processResources {
     filesMatching("plugin.yml") {
         expand "version": project.version
+    }
+}
+
+tasks {
+    runServer {
+        minecraftVersion("1.18")
     }
 }

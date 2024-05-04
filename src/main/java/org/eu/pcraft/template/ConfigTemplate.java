@@ -1,10 +1,14 @@
 package org.eu.pcraft.template;
-import static org.eu.pcraft.pepperminecart.PepperMinecart.yaml;
+import lombok.Getter;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.eu.pcraft.pepperminecart.PepperMinecart;
 
+@Getter
 public class ConfigTemplate {
-    public void loadConfig(){
-        enableCustomInteract= yaml.getBoolean("enableCustomInteract");
+    public void loadConfig() {
+        FileConfiguration conf = PepperMinecart.getInstance().getConfig();
+        enableCustomInteract = conf.getBoolean("enableCustomInteract");
     }
-    public boolean enableCustomInteract;
 
+    private boolean enableCustomInteract;
 }
