@@ -1,34 +1,10 @@
-buildscript {
-    repositories {
-        gradlePluginPortal()
-    }
-    dependencies {
-        classpath 'com.github.johnrengelman:shadow:8.1.1'
-    }
-}
 plugins {
     id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'java'
 }
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = "UTF-8"        //这里最好选择UTF-8
-}
-shadowJar{
-    manifest {
-        attributes 'Main-Class': 'org.eu.pcraft.Main'
-    }
-    dependencies {
-        include dependency("dev.jorel:commandapi-bukkit-shade:9.3.0")
-        include dependency("de.tr7zw:item-nbt-api:2.12.4")
-    }
-    relocate("dev.jorel.commandapi-bukkit-shade", "org.eu.pcraft.packages.commandapi")
-    relocate("de.tr7zw.changeme.nbtapi", "org.eu.pcraft.packages.nbtapi")
-}
+
 group = 'org.eu.pcraft'
 version = '1.1.5'
-
-apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'java'
 
 repositories {
     mavenCentral()
@@ -39,28 +15,57 @@ repositories {
         url "https://repo.extendedclip.com/content/repositories/placeholderapi/"
     }
     maven {
-        name = "CodeMC"
-        url = uri("https://repo.codemc.io/repository/maven-public/")
+        url "https://repo.codemc.io/repository/maven-public/"
     }
 }
 
+configurations {
+    include
+    implementation.extendsFrom(include)
+}
+
 dependencies {
+    compileOnly "com.destroystokyo.paper:paper-api:1.16.5-R0.1-SNAPSHOT"
+
     compileOnly 'org.projectlombok:lombok:1.18.30'
     annotationProcessor 'org.projectlombok:lombok:1.18.30'
+
+    include "de.tr7zw:item-nbt-api:2.12.4"
+
+    compileOnly "dev.jorel:commandapi-bukkit-core:9.3.0"
+    include "dev.jorel:commandapi-bukkit-shade:9.3.0"
+
     testImplementation platform('org.junit:junit-bom:5.9.1')
     testImplementation 'org.junit.jupiter:junit-jupiter'
-    compileOnly "com.destroystokyo.paper:paper-api:1.16.5-R0.1-SNAPSHOT"
-    implementation ("de.tr7zw:item-nbt-api:2.12.4")
-    compileOnly "dev.jorel:commandapi-bukkit-core:9.3.0"
-    implementation "dev.jorel:commandapi-bukkit-shade:9.3.0"
-
 }
+
 test {
     useJUnitPlatform()
 }
+
 build {
     dependsOn(shadowJar)
 }
+
 java{
     toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = "UTF-8"        //这里最好选择UTF-8
+}
+
+shadowJar{
+    manifest {
+        attributes 'Main-Class': 'org.eu.pcraft.Main'
+    }
+    configurations = [project.configurations.include]
+    relocate("dev.jorel.commandapi", "org.eu.pcraft.packages.commandapi")
+    relocate("de.tr7zw.changeme.nbtapi", "org.eu.pcraft.packages.nbtapi")
+}
+
+processResources {
+    filesMatching("plugin.yml") {
+        expand "version": project.version
+    }
 }
