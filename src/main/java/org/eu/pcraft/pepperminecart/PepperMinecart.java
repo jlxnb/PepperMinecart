@@ -6,13 +6,18 @@ import dev.jorel.commandapi.arguments.GreedyStringArgument;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.AnaloguePowerable;
+import org.bukkit.configuration.Configuration;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Minecart;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.eu.pcraft.bStats.Metrics;
 import org.eu.pcraft.template.ConfigTemplate;
 
-import java.util.HashMap;
-import java.util.Objects;
+import java.util.*;
 
 public final class PepperMinecart extends JavaPlugin {
     public static HashMap<Material, EntityType> changeMap = new HashMap<>();
@@ -22,6 +27,10 @@ public final class PepperMinecart extends JavaPlugin {
 
     @Getter
     private final ConfigTemplate configTemplate = new ConfigTemplate();
+  
+    public static Configuration yaml;
+  
+    public static Set<UUID> redstoneMinecartSet=new HashSet<>();
 
     @Override
     public void onLoad() {
@@ -68,6 +77,19 @@ public final class PepperMinecart extends JavaPlugin {
                     }
                 })
                 .register();
+        Bukkit.getScheduler().runTaskTimer(this,()->{
+            for(UUID uuid:redstoneMinecartSet){
+                Entity minecart=Bukkit.getEntity(uuid);
+                Block block=minecart.getWorld().getBlockAt(minecart.getLocation());
+                for(BlockFace face:BlockFace.values()){
+                    if(block.getRelative(face).getBlockData() instanceof AnaloguePowerable){
+                        AnaloguePowerable x=(AnaloguePowerable) block.getRelative(face).getBlockData();
+                        x.setPower(14);
+                    }
+                }
+            }
+
+        },0,0);
     }
 
     @Override
