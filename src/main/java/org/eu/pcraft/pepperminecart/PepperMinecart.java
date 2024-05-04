@@ -46,6 +46,7 @@ public final class PepperMinecart extends JavaPlugin {
 
         ////config////
         saveDefaultConfig();
+        configTemplate.loadConfig();
 
         ////Commands////
         CommandAPI.onEnable();
