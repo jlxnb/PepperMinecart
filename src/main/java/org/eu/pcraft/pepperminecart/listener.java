@@ -23,8 +23,7 @@ import org.bukkit.material.Lever;
 import java.util.Map;
 import java.util.Objects;
 
-import static org.eu.pcraft.pepperminecart.PepperMinecart.changeMap;
-import static org.eu.pcraft.pepperminecart.PepperMinecart.config;
+import static org.eu.pcraft.pepperminecart.PepperMinecart.*;
 
 
 public class listener implements Listener {
@@ -33,14 +32,7 @@ public class listener implements Listener {
         //Unfinished! Welcome PRs!
         Minecart minecart=(Minecart) event.getVehicle();
         if(minecart.getDisplayBlockData().getMaterial()==Material.REDSTONE_BLOCK){
-            Block block=minecart.getWorld().getBlockAt(minecart.getLocation());
-            for(BlockFace face:BlockFace.values()){
-                if(block.getRelative(face).getBlockData() instanceof AnaloguePowerable){
-                    AnaloguePowerable x=(AnaloguePowerable) block.getRelative(face).getBlockData();
-                    x.setPower(15);
-                    block.getRelative(face).setBlockData(x.clone());
-                }
-            }
+            redstoneMinecartSet.add(minecart.getUniqueId());
         }
     }
 
@@ -92,6 +84,7 @@ public class listener implements Listener {
                         event.setCancelled(true);
                         return;
                     }
+                    redstoneMinecartSet.remove(minecart.getUniqueId());
                 }//放上物体 处理部分
                 else {
                     if (item.getType().isBlock()) {//是方块 可以被放置
@@ -110,6 +103,9 @@ public class listener implements Listener {
                         NBTEntity entity = new NBTEntity(minecart);
                         entity.getPersistentDataContainer().setItemStack("BlockInfo", copyItem);
                         minecart.setDisplayBlockData(material.createBlockData());
+                        if(material.equals(Material.REDSTONE_BLOCK)){
+                            redstoneMinecartSet.add(minecart.getUniqueId());
+                        }
 //                        if(material.createBlockData() instanceof Lightable){
 //                            minecart.
 //                        }
