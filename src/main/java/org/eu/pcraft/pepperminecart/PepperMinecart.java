@@ -1,6 +1,7 @@
 package org.eu.pcraft.pepperminecart;
 
 import dev.jorel.commandapi.*;
+import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -49,15 +50,20 @@ public final class PepperMinecart extends JavaPlugin {
         ////Commands////
         CommandAPI.onEnable();
         new CommandAPICommand("PepperMinecart")
-                .withArguments(new GreedyStringArgument("subCommand"))
+                .withArguments(
+                        new GreedyStringArgument("subCommand")
+                                .includeSuggestions(
+                                        ArgumentSuggestions.strings("reload")
+                                )
+                )
                 .withPermission(CommandPermission.OP)
                 .withAliases("pm", "minecart")
                 .executes((sender, args) -> {
                     if(Objects.equals(args.get("subCommand"), "reload")){
-                        Bukkit.getLogger().info("正在重新加载……");
+                        sender.sendMessage("[PepperMinecart] 正在重新加载……");
                         this.reloadConfig();
                         configTemplate.loadConfig();
-                        Bukkit.getLogger().info("完成！");
+                        sender.sendMessage("[PepperMinecart] 完成！");
                     }
                 })
                 .register();
