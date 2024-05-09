@@ -1,21 +1,26 @@
 package org.eu.pcraft.pepperminecart;
 
 import de.tr7zw.changeme.nbtapi.NBTEntity;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.data.AnaloguePowerable;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.ShulkerBox;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.event.vehicle.VehicleUpdateEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.metadata.MetadataValue;
 
 import java.util.Map;
 import java.util.Objects;
@@ -42,7 +47,10 @@ public class listener implements Listener {
         if (item != null)
             minecart.getWorld().dropItem(minecart.getLocation(), item);
     }
-
+    @EventHandler
+    void onCloseInv(InventoryCloseEvent event){
+        //if(event.getInventory().getHolder()==)
+    }
     @EventHandler
     void onInteract(PlayerInteractEntityEvent event) {
         if (event.getHand() == EquipmentSlot.HAND) {
@@ -64,6 +72,15 @@ public class listener implements Listener {
                             case SMITHING_TABLE -> player.openSmithingTable(null, true);
                             case STONECUTTER -> player.openStonecutter(null, true);
                         }
+                        System.out.println(minecart.getDisplayBlockData().getMaterial().getKey().getKey());
+                        if(minecart.getDisplayBlockData().getMaterial().getKey().getKey().endsWith("_shulker_box")){
+                            //Unfinished!
+//                            System.out.println(1);
+//                            NBTEntity entity=new NBTEntity(minecart);
+//                            Inventory inv=box.getInventory();
+//                            System.out.println(inv.getHolder());
+//                            player.openInventory(inv.getHolder().getInventory());
+                        }
                     }
                     return;
                 }
@@ -77,7 +94,7 @@ public class listener implements Listener {
                         minecart.setDisplayBlockData(Material.AIR.createBlockData());
                         return;
                     }
-                    if (is != null && Objects.equals(item.getItemMeta(), is.getItemMeta())) {//手上为车上物体 取下物体
+                    if (is != null && item.asOne().equals(is.asOne())) {//手上为车上物体 取下物体
                         item.add();
                         minecart.setDisplayBlockData(Material.AIR.createBlockData());
                         event.setCancelled(true);

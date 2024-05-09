@@ -77,19 +77,20 @@ public final class PepperMinecart extends JavaPlugin {
                     }
                 })
                 .register();
-        Bukkit.getScheduler().runTaskTimer(this,()->{
-            for(UUID uuid:redstoneMinecartSet){
-                Entity minecart=Bukkit.getEntity(uuid);
-                Block block=minecart.getWorld().getBlockAt(minecart.getLocation());
-                for(BlockFace face:BlockFace.values()){
-                    if(block.getRelative(face).getBlockData() instanceof AnaloguePowerable){
-                        AnaloguePowerable x=(AnaloguePowerable) block.getRelative(face).getBlockData();
-                        x.setPower(14);
-                    }
-                }
-            }
-
-        },0,0);
+        ////RedstoneMinecart////
+//        Bukkit.getScheduler().runTaskTimer(this,()->{
+//            for(UUID uuid:redstoneMinecartSet){
+//                Entity minecart=Bukkit.getEntity(uuid);
+//                Block block=minecart.getWorld().getBlockAt(minecart.getLocation());
+//                for(BlockFace face:BlockFace.values()){
+//                    if(block.getRelative(face).getBlockData() instanceof AnaloguePowerable){
+//                        AnaloguePowerable x=(AnaloguePowerable) block.getRelative(face).getBlockData();
+//                        x.setPower(14);
+//                    }
+//                }
+//            }
+//
+//        },0,0);
     }
 
     @Override
