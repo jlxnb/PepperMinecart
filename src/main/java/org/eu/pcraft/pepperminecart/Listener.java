@@ -22,8 +22,8 @@ public class Listener implements org.bukkit.event.Listener {
     @EventHandler
     void onDestroy(VehicleDestroyEvent event) {
         Entity minecart = event.getVehicle();
-        ItemStack item = NBT.get(minecart, nbt ->
-                (ItemStack) nbt.getItemStack("BlockInfo"));
+        ItemStack item = NBT.getPersistentData(minecart, nbt ->
+                nbt.getItemStack("BlockInfo"));
         if (item != null)
             minecart.getWorld().dropItem(minecart.getLocation(), item);
     }
@@ -40,10 +40,6 @@ public class Listener implements org.bukkit.event.Listener {
                 Minecart minecart = (Minecart) event.getRightClicked();
                 Player player = event.getPlayer();
                 ItemStack item = player.getInventory().getItemInMainHand();
-                if (!minecart.getDisplayBlockData().getMaterial().isAir()) {
-                    //矿车上有物品 不能坐上去
-                    event.setCancelled(true);
-                }
 
                 if (!player.isSneaking()) {
                     //交互
@@ -67,25 +63,24 @@ public class Listener implements org.bukkit.event.Listener {
                     }
                     return;
                 }
-                ItemStack is = NBT.get(minecart, nbt ->
-                        (ItemStack) nbt.getItemStack("BlockInfo"));
+                ItemStack is = NBT.getPersistentData(minecart, nbt ->
+                        nbt.getItemStack("BlockInfo"));
                 if (!minecart.getDisplayBlockData().getMaterial().isAir()) {
                     //取下物体 处理部分
                     if (item.getType().isAir()) {
                         //手上为空 取下物体
-                        NBT.modify(minecart, nbt -> {
-                            nbt.removeKey("BlockInfo");
-                        });
                         player.getInventory().setItemInMainHand(is);
-                        minecart.setDisplayBlockData(Material.AIR.createBlockData());
-                        return;
-                    }
-                    if (item.asOne().equals(is)) {
-                        //手上为车上物体 取下物体
                         NBT.modify(minecart, nbt -> {
                             nbt.removeKey("BlockInfo");
                         });
+                        minecart.setDisplayBlockData(Material.AIR.createBlockData());
+                    }
+                    if (item.asOne().equals(is) && item.getAmount() != item.getMaxStackSize()) {
+                        //手上为车上物体 取下物体
                         item.add();
+                        NBT.modify(minecart, nbt -> {
+                            nbt.removeKey("BlockInfo");
+                        });
                         minecart.setDisplayBlockData(Material.AIR.createBlockData());
                         event.setCancelled(true);
                     }
@@ -103,7 +98,7 @@ public class Listener implements org.bukkit.event.Listener {
                             return;
                         }
                     }
-                    NBT.modify(minecart, nbt -> {
+                    NBT.modifyPersistentData(minecart, nbt -> {
                         nbt.setItemStack("BlockInfo", copyItem);
                     });
                     minecart.setDisplayBlockData(material.createBlockData());

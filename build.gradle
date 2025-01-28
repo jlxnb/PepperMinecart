@@ -35,7 +35,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.30'
 
     include "de.tr7zw:item-nbt-api:2.14.1"
-    implementation("dev.jorel:commandapi-bukkit-shade-mojang-mapped:9.7.0")
+    include "dev.jorel:commandapi-bukkit-shade:9.7.0"
     include 'org.bstats:bstats-bukkit:3.0.2'
 
     testImplementation platform('org.junit:junit-bom:5.9.1')
@@ -67,16 +67,13 @@ bukkit {
 
 shadowJar {
     configurations = [project.configurations.include]
-
-    relocate "org.bstats", "org.eu.pcraft.PepperMinecart.bstats"
     def dev = Boolean.parseBoolean(project.getProperties().get("dev").toString())
     println "isDev: ${dev}"
     if (!dev) {
         println "Relocation enabled"
-        for (var s in new String[]{"org.spongepowered", "dev.jorel"}) {
-            relocate s, "org.eu.pcraft.pepperminecart.${s}"
-            println "relocate $s -> org.eu.pcraft.pepperminecart.${s}"
-        }
+        relocate("dev.jorel.commandapi", "org.eu.pcraft.pepperminecart.commandapi")
+        relocate("org.bstats", "org.eu.pcraft.pepperminecart")
+        relocate("de.tr7zw.changeme.nbtapi", "org.eu.pcraft.pepperminecart.nbtapi")
     }
     manifest {
 //        attributes["paperweight-mappings-namespace"] = "spigot"
