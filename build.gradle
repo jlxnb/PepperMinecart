@@ -1,11 +1,12 @@
 plugins {
-    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id("com.gradleup.shadow") version "8.3.3"
     id 'java'
     id "xyz.jpenilla.run-paper" version "2.3.0"
+    id 'net.minecrell.plugin-yml.bukkit' version '0.6.0'
 }
 
 group = 'org.eu.pcraft'
-version = '1.1.5'
+version = '1.1.6'
 
 repositories {
     mavenCentral()
@@ -31,10 +32,9 @@ dependencies {
     compileOnly 'org.projectlombok:lombok:1.18.30'
     annotationProcessor 'org.projectlombok:lombok:1.18.30'
 
-    include "de.tr7zw:item-nbt-api:2.12.4"
-
-    compileOnly "dev.jorel:commandapi-bukkit-core:9.3.0"
-    include "dev.jorel:commandapi-bukkit-shade:9.3.0"
+    include "de.tr7zw:item-nbt-api:2.14.1"
+    implementation("dev.jorel:commandapi-bukkit-shade-mojang-mapped:9.7.0")
+    include 'org.bstats:bstats-bukkit:3.0.2'
 
     testImplementation platform('org.junit:junit-bom:5.9.1')
     testImplementation 'org.junit.jupiter:junit-jupiter'
@@ -53,21 +53,32 @@ java{
 }
 
 tasks.withType(JavaCompile).configureEach {
-    options.encoding = "UTF-8"        //这里最好选择UTF-8
+    options.encoding = "UTF-8"
 }
 
-shadowJar{
-    manifest {
-        attributes 'Main-Class': 'org.eu.pcraft.Main'
-    }
+bukkit {
+    name = "PepperMinecart"
+    main = "org.eu.pcraft.pepperminecart.PepperMinecart"
+    apiVersion = "1.18"
+    depend = ['Vault']
+}
+
+shadowJar {
     configurations = [project.configurations.include]
-    relocate("dev.jorel.commandapi", "org.eu.pcraft.packages.commandapi")
-    relocate("de.tr7zw.changeme.nbtapi", "org.eu.pcraft.packages.nbtapi")
-}
 
-processResources {
-    filesMatching("plugin.yml") {
-        expand "version": project.version
+    relocate "org.bstats", "org.eu.pcraft.PepperMinecart.bstats"
+    def dev = Boolean.parseBoolean(project.getProperties().get("dev").toString())
+    println "isDev: ${dev}"
+    if (!dev) {
+        println "Relocation enabled"
+        for (var s in new String[]{"org.spongepowered"}) {
+            relocate s, "org.eu.pcraft.pepperminecart.${s}"
+            println "relocate $s -> org.eu.pcraft.pepperminecart.${s}"
+        }
+    }
+    manifest {
+//        attributes["paperweight-mappings-namespace"] = "spigot"
+        attributes 'Main-Class': 'org.eu.pcraft.Main'
     }
 }
 

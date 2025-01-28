@@ -6,15 +6,10 @@ import dev.jorel.commandapi.arguments.GreedyStringArgument;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.data.AnaloguePowerable;
 import org.bukkit.configuration.Configuration;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Minecart;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.eu.pcraft.bStats.Metrics;
+import org.bstats.bukkit.Metrics;
 import org.eu.pcraft.template.ConfigTemplate;
 
 import java.util.*;
@@ -42,10 +37,9 @@ public final class PepperMinecart extends JavaPlugin {
         ////bStats////
         int pluginId = 21763;
         Metrics metrics = new Metrics(this, pluginId);
-        //metrics.addCustomChart(new Metrics.SimplePie("chart_id", () -> "My value"));
 
         ////init////
-        Bukkit.getPluginManager().registerEvents(new listener(), this);
+        Bukkit.getPluginManager().registerEvents(new Listener(), this);
         instance = this;
         changeMap.put(Material.HOPPER, EntityType.MINECART_HOPPER);
         changeMap.put(Material.CHEST, EntityType.MINECART_CHEST);
@@ -70,10 +64,10 @@ public final class PepperMinecart extends JavaPlugin {
                 .withAliases("pm", "minecart")
                 .executes((sender, args) -> {
                     if(Objects.equals(args.get("subCommand"), "reload")){
-                        sender.sendMessage("[PepperMinecart] 正在重新加载……");
+                        sender.sendMessage("[PepperMinecart] reloading...");
                         this.reloadConfig();
                         configTemplate.loadConfig();
-                        sender.sendMessage("[PepperMinecart] 完成！");
+                        sender.sendMessage("[PepperMinecart] Done!");
                     }
                 })
                 .register();
