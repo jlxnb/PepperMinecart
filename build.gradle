@@ -73,7 +73,7 @@ shadowJar {
     println "isDev: ${dev}"
     if (!dev) {
         println "Relocation enabled"
-        for (var s in new String[]{"org.spongepowered"}) {
+        for (var s in new String[]{"org.spongepowered", "dev.jorel"}) {
             relocate s, "org.eu.pcraft.pepperminecart.${s}"
             println "relocate $s -> org.eu.pcraft.pepperminecart.${s}"
         }
