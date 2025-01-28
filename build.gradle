@@ -60,7 +60,7 @@ bukkit {
     name = "PepperMinecart"
     main = "org.eu.pcraft.pepperminecart.PepperMinecart"
     apiVersion = "1.16"
-    depend = ['Vault']
+//    depend = ['Vault']
 }
 
 shadowJar {
@@ -84,6 +84,6 @@ shadowJar {
 
 tasks {
     runServer {
-        minecraftVersion("1.18")
+        minecraftVersion("1.20.4")
     }
 }
