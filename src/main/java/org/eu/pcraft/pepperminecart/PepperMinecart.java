@@ -7,6 +7,7 @@ import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.Configuration;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bstats.bukkit.Metrics;
@@ -15,8 +16,10 @@ import org.eu.pcraft.template.ConfigTemplate;
 import java.util.*;
 
 public final class PepperMinecart extends JavaPlugin {
-    public static HashMap<Material, EntityType> changeMap = new HashMap<>();
+    @Getter
+    private static Map<Material, EntityType> changeMap = new HashMap<>();
 
+    protected Map<Entity, MinecartChestHolder> holderMap = new HashMap<>();
     @Getter
     private static PepperMinecart instance;
 

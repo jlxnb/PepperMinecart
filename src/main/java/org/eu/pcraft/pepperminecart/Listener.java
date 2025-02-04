@@ -2,6 +2,7 @@ package org.eu.pcraft.pepperminecart;
 
 import de.tr7zw.changeme.nbtapi.NBT;
 import org.bukkit.Material;
+import org.bukkit.block.ShulkerBox;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Minecart;
@@ -12,13 +13,13 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BlockStateMeta;
 
 import java.util.Map;
 
-import static org.eu.pcraft.pepperminecart.PepperMinecart.changeMap;
-
 
 public class Listener implements org.bukkit.event.Listener {
+
     @EventHandler
     void onDestroy(VehicleDestroyEvent event) {
         Entity minecart = event.getVehicle();
@@ -30,7 +31,23 @@ public class Listener implements org.bukkit.event.Listener {
 
     @EventHandler
     void onCloseInv(InventoryCloseEvent event) {
-        //if(event.getInventory().getHolder()==)
+        if(event.getInventory().getHolder() instanceof MinecartChestHolder){
+            if(event.getInventory().getViewers().isEmpty()){
+                //destroy holder
+                Minecart minecart = ((MinecartChestHolder) event.getInventory().getHolder()).getMinecart();
+                ItemStack boxItem = NBT.getPersistentData(minecart, nbt ->
+                        nbt.getItemStack("BlockInfo"));
+                BlockStateMeta meta = (BlockStateMeta) boxItem.getItemMeta();
+                ShulkerBox shulkerBox = (ShulkerBox) meta.getBlockState();
+                shulkerBox.getInventory().setContents(event.getInventory().getContents());
+                meta.setBlockState(shulkerBox);
+                boxItem.setItemMeta(meta);
+                NBT.modifyPersistentData(minecart, nbt -> {
+                    nbt.setItemStack("BlockInfo", boxItem);
+                });
+                PepperMinecart.getInstance().holderMap.remove(minecart);
+            }
+        }
     }
 
     @EventHandler
@@ -52,16 +69,24 @@ public class Listener implements org.bukkit.event.Listener {
                             case SMITHING_TABLE -> player.openSmithingTable(null, true);
                             case STONECUTTER -> player.openStonecutter(null, true);
                         }
-                        if (minecart.getDisplayBlockData().getMaterial().getKey().getKey().endsWith("_shulker_box")) {
-                            //Unfinished!
-//                            System.out.println(1);
-//                            NBTEntity entity=new NBTEntity(minecart);
-//                            Inventory inv=box.getInventory();
-//                            System.out.println(inv.getHolder());
-//                            player.openInventory(inv.getHolder().getInventory());
-                        }
+                        event.setCancelled(true);
+                        return;
                     }
-                    return;
+                    if (minecart.getDisplayBlockData().getMaterial().getKey().getKey().endsWith("_shulker_box")) {
+                        //Unfinished!
+                        MinecartChestHolder holder = PepperMinecart.getInstance().holderMap.get(minecart);
+                        if(holder == null){
+                            ItemStack boxItem = NBT.getPersistentData(minecart, nbt ->
+                                    nbt.getItemStack("BlockInfo"));
+                            BlockStateMeta meta = (BlockStateMeta) boxItem.getItemMeta();
+                            ShulkerBox shulkerBox = (ShulkerBox) meta.getBlockState();
+                            holder = new MinecartChestHolder(shulkerBox.getInventory(), minecart);
+                            PepperMinecart.getInstance().holderMap.put(minecart, holder);
+                        }
+                        event.getPlayer().openInventory(holder.getInventory());
+                        event.setCancelled(true);
+                        return;
+                    }
                 }
                 ItemStack is = NBT.getPersistentData(minecart, nbt ->
                         nbt.getItemStack("BlockInfo"));
@@ -70,7 +95,7 @@ public class Listener implements org.bukkit.event.Listener {
                     if (item.getType().isAir()) {
                         //手上为空 取下物体
                         player.getInventory().setItemInMainHand(is);
-                        NBT.modify(minecart, nbt -> {
+                        NBT.modifyPersistentData(minecart, nbt -> {
                             nbt.removeKey("BlockInfo");
                         });
                         minecart.setDisplayBlockData(Material.AIR.createBlockData());
@@ -78,7 +103,7 @@ public class Listener implements org.bukkit.event.Listener {
                     if (item.asOne().equals(is) && item.getAmount() != item.getMaxStackSize()) {
                         //手上为车上物体 取下物体
                         item.add();
-                        NBT.modify(minecart, nbt -> {
+                        NBT.modifyPersistentData(minecart, nbt -> {
                             nbt.removeKey("BlockInfo");
                         });
                         minecart.setDisplayBlockData(Material.AIR.createBlockData());
@@ -89,7 +114,7 @@ public class Listener implements org.bukkit.event.Listener {
                     Material material = item.getType();
                     ItemStack copyItem = item.asOne().clone();
                     item.subtract(1);
-                    for (Map.Entry<Material, EntityType> entry : changeMap.entrySet()) {
+                    for (Map.Entry<Material, EntityType> entry : PepperMinecart.getChangeMap().entrySet()) {
                         if (entry.getKey() == material) {
                             Entity entity = minecart.getWorld().spawnEntity(minecart.getLocation(), entry.getValue());
                             entity.setVelocity(minecart.getVelocity());
@@ -101,6 +126,7 @@ public class Listener implements org.bukkit.event.Listener {
                     NBT.modifyPersistentData(minecart, nbt -> {
                         nbt.setItemStack("BlockInfo", copyItem);
                     });
+                    //bug during some block's display
                     minecart.setDisplayBlockData(material.createBlockData());
                     event.setCancelled(true);
                 }
